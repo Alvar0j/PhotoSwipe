@@ -34,21 +34,24 @@ function App() {
       }
 
       try {
-        console.log("Fetching photos from native plugin...");
-        const result = await PhotoLibrary.getPhotos({ limit: 50 });
+        console.log("Fetching photos from native plugin (all)...");
+        // Limit 0 indicates no limit in our plugin implementation logic (implied by PHFetchOptions check usually taking 0 as no limit or we rely on the plugin handling it)
+        // Wait, looking at the swift code: let limit = call.getInt("limit") ?? 50. If I pass 0, it takes 0.
+        // PHFetchOptions.fetchLimit = 0 means "no limit" in iOS.
+        const result = await PhotoLibrary.getPhotos({ limit: 0 });
         console.log(`Found ${result.photos.length} photos`);
-
-        // Transform to our format. Note: We need to fetch thumbnails for them to be visible.
-        // For performance, we might want to lazy load them? 
-        // For this MVP, let's just use the ID and we will have to modify PhotoCard to load the thumbnail async given the ID?
-        // OR, we stick to the plan: The plugin returns metadata, and we fetch base64 on demand?
-        // Let's modify the map to be simple first.
 
         const mappedPhotos = result.photos.map((p: any) => ({
           id: p.id,
           url: '', // Will be loaded by the card
           nativeURL: p.localIdentifier,
         }));
+
+        // Fisher-Yates shuffle
+        for (let i = mappedPhotos.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [mappedPhotos[i], mappedPhotos[j]] = [mappedPhotos[j], mappedPhotos[i]];
+        }
 
         setPhotos(mappedPhotos);
         setLoading(false);
