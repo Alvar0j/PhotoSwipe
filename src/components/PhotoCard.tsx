@@ -23,7 +23,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({ photo, onSwipe, isFront })
                     setIsLoading(true);
                     const result = await PhotoLibrary.getPhotoThumbnail({ id: photo.id });
                     if (result.base64) {
-                        setImageSrc(`data: image / jpeg; base64, ${result.base64} `);
+                        setImageSrc(`data:image/jpeg;base64,${result.base64}`);
                     }
                 } catch (err) {
                     console.error("Failed to load thumbnail", err);
